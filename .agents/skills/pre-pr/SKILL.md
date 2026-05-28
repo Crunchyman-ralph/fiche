@@ -8,7 +8,7 @@ argument-hint: "<diff range, branch name, or empty to default to origin/main...H
 
 You wrote the code. This skill catches what a reviewer would otherwise flag — fixes it in this branch — then prepares the PR so a reviewer can read it in two minutes.
 
-For *reviewing someone else's* PR, use `/review` instead.
+For _reviewing someone else's_ PR, use `/review` instead.
 
 ## When this skill fires
 
@@ -20,11 +20,13 @@ The cost of a fixup commit is much lower than a review round-trip, which is why 
 
 ## Companion skills
 
-Invoke alongside `/pre-pr` based on diff shape:
+Invoke these via the **Skill tool** (`Skill(skill: "name")`) alongside this audit, based on diff shape:
 
-- **`/thermo-nuclear-code-quality-review`** — if the diff is >1000 lines OR touches structural code (file restructures, layer moves, abstraction changes). Use it when your eye sees more than a feature add — when the *shape* of the codebase changed. Merge its findings with this checklist.
-- **`/deslop`** — if the diff has AI-written tells (defensive try/catches in trusted paths, `any` casts to bypass types, narrating comments, nested code that early returns would flatten). Run **first**, so the audit focuses on real issues instead of slop noise.
-- **`/make-pr-easy-to-review`** — after fixing Blockers, before `gh pr create`. Cleans commits into a reviewable order, writes a description that matches the diff, surfaces the risky files. The reviewer should grok the PR card in 30 seconds.
+- **`thermo-nuclear-code-quality-review`** — if the diff is >1000 lines OR touches structural code (file restructures, layer moves, abstraction changes). Use it when your eye sees more than a feature add — when the _shape_ of the codebase changed. Merge its findings with this checklist.
+- **`deslop`** — if the diff has AI-written tells (defensive try/catches in trusted paths, `any` casts to bypass types, narrating comments, nested code that early returns would flatten). Run **first**, so this audit focuses on real issues instead of slop noise.
+- **`make-pr-easy-to-review`** — **after** fixing Blockers, **before** `gh pr create`. Cleans commits into a reviewable order, writes a description that matches the diff, surfaces the risky files. The reviewer should grok the PR card in 30 seconds.
+
+Invocation example: `Skill(skill: "deslop")` before walking the checklist, then `Skill(skill: "make-pr-easy-to-review")` after Blockers are clear.
 
 ## Core workflow
 
@@ -141,11 +143,11 @@ Use `zod` for schema validation (already present). Don't hand-roll what an exist
 
 ## Severity triage
 
-| Severity | Examples | Action |
-|---|---|---|
-| **Blocker** | ADR contradiction; handler logic in routes/; direct RFM string manipulation; missing auth gate; uncommitted migration; Ultracite violation; secrets in code | **Fix before opening PR** |
-| **Should-fix** | Dead code; DRY violations; missing self-host parity; missing tests; new dep without justification | **Fix in this branch** if cheap; otherwise note in the PR description |
-| **Nit** | Naming, comment phrasing, minor style | **Just fix it** |
+| Severity       | Examples                                                                                                                                                    | Action                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Blocker**    | ADR contradiction; handler logic in routes/; direct RFM string manipulation; missing auth gate; uncommitted migration; Ultracite violation; secrets in code | **Fix before opening PR**                                             |
+| **Should-fix** | Dead code; DRY violations; missing self-host parity; missing tests; new dep without justification                                                           | **Fix in this branch** if cheap; otherwise note in the PR description |
+| **Nit**        | Naming, comment phrasing, minor style                                                                                                                       | **Just fix it**                                                       |
 
 When in doubt, prefer fixing over deferring.
 
@@ -166,18 +168,23 @@ Before `gh pr create`, summarize:
 ## Pre-PR audit summary
 
 ### Blockers
+
 <list, or "none">
 
 ### Should-fix
+
 <list — what was auto-fixed vs. what's outstanding>
 
 ### Nits
+
 <list — already auto-fixed unless noted>
 
 ### PR readability
+
 <status of /make-pr-easy-to-review prep>
 
 ### Verdict
+
 <READY TO OPEN PR / BLOCKERS REMAINING — fix and re-run>
 ```
 

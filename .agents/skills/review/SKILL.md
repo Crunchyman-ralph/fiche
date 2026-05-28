@@ -19,9 +19,13 @@ Reviewer-side audit of someone else's PR. Read it carefully, surface what would 
 
 ## Companion subagents and skills
 
-- **Task subagent `fiche-deep-review`** — invoke via the Task tool for structural / maintainability depth. Best for diffs >500 lines, file restructures, or changes that smell like they restructure a layer rather than add a feature. The subagent loads the thermo-nuclear rubric and applies it through Fiche's lens.
-- **`/thermo-nuclear-code-quality-review`** — when you want the deep audit yourself (not delegated to a subagent), invoke this directly. Same rubric, your context.
-- **`/get-pr-comments`** — useful when reviewing iterations of a PR. Pulls existing reviewer comments so you don't repeat them.
+Two ways to add depth to this review. Use the **Task tool** for the subagent (parallelizable, isolated context), use the **Skill tool** for the skills (runs in this context):
+
+- **`Task(subagent_type: "fiche-deep-review", prompt: "<diff + changed file contents in labeled sections>")`** — for structural / maintainability depth. Best for diffs >500 lines, file restructures, or changes that smell like they restructure a layer rather than add a feature. The subagent loads the thermo-nuclear rubric and applies it through Fiche's lens, in isolated context so its findings don't pollute this review.
+- **`Skill(skill: "thermo-nuclear-code-quality-review")`** — when you want the deep audit yourself instead of delegating to a subagent. Same rubric, your context, more token cost.
+- **`Skill(skill: "get-pr-comments")`** — useful when reviewing iterations of a PR. Pulls existing reviewer comments so you don't repeat them.
+
+For diffs that warrant the deep audit, the typical orchestration is: spawn the subagent first (one Task call), let it work in parallel while you walk the Fiche checklist below, then incorporate its top findings into your review output.
 
 ## Workflow
 
@@ -134,11 +138,11 @@ Did the PR add a real new path without tests? Auth, doc-mutation, and MCP write 
 
 ## Severity triage
 
-| Severity | Action |
-|---|---|
-| **Blocker** | REQUEST CHANGES verdict. Author must address before merge. |
+| Severity       | Action                                                                               |
+| -------------- | ------------------------------------------------------------------------------------ |
+| **Blocker**    | REQUEST CHANGES verdict. Author must address before merge.                           |
 | **Should-fix** | Note in review. Author should address in this PR if cheap; in a follow-up otherwise. |
-| **Nit** | Optional. Mention if low cost; suppress if there are bigger fish. |
+| **Nit**        | Optional. Mention if low cost; suppress if there are bigger fish.                    |
 
 If there are no Blockers and the change cleanly serves its stated intent, APPROVE. Don't manufacture findings — a clean PR deserves a clean review.
 
@@ -148,9 +152,11 @@ If there are no Blockers and the change cleanly serves its stated intent, APPROV
 ## Review of #<PR number or title>
 
 ### Verdict
+
 <APPROVE / REQUEST CHANGES / NEEDS DISCUSSION>
 
 ### Summary (1-2 sentences)
+
 What the PR does, and your one-sentence read on whether it serves that intent cleanly.
 
 ### Blockers (REQUEST CHANGES if any)
@@ -199,7 +205,7 @@ That's the level of specificity to leave: cite the file and line, name the rule,
 
 Direct. Specific. Surface what an experienced reviewer would catch. Don't pile on nits when there are Blockers; the author needs to address the big stuff first.
 
-If a finding is structural rather than line-level (e.g., "this whole module would be cleaner as a state machine"), invoke the `fiche-deep-review` Task subagent with the diff and full file contents — let it do the rubric work and then incorporate its top findings into your review.
+If a finding is structural rather than line-level (e.g., "this whole module would be cleaner as a state machine"), call `Task(subagent_type: "fiche-deep-review", prompt: <diff + changed file contents in labeled sections>)` — let it do the rubric work in isolated context, then incorporate its top findings into your review.
 
 If there are no Blockers, APPROVE without padding. A short clean review is a service to the author.
 
