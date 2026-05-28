@@ -1,0 +1,25 @@
+version: "3.9"
+
+# Local dev: just Postgres. Run the apps with `bun dev` against this DB.
+# For prod / Coolify, the apps deploy from their own Dockerfiles alongside this.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: fiche
+      POSTGRES_PASSWORD: fiche
+      POSTGRES_DB: fiche
+    volumes:
+      - fiche_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fiche -d fiche"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  fiche_postgres:

@@ -1,0 +1,10 @@
+{
+  "extends": "@fiche/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["bun-types"],
+    "lib": ["ES2022"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

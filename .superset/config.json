@@ -1,0 +1,9 @@
+{
+  "setup": [
+    "bun install",
+    "cp \"$SUPERSET_ROOT_PATH/.env\" .env || cp .env.example .env",
+    "docker compose up -d postgres",
+    "bun db:migrate"
+  ],
+  "run": ["bun dev"]
+}

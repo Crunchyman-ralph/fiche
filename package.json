@@ -1,0 +1,33 @@
+{
+  "name": "fiche",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "check": "ultracite check",
+    "fix": "ultracite fix",
+    "db:generate": "bun --filter @fiche/db db:generate",
+    "db:migrate": "bun --filter @fiche/db db:migrate",
+    "db:studio": "bun --filter @fiche/db db:studio",
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "lefthook": "^2.1.8",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.67.0",
+    "turbo": "^2.3.0",
+    "typescript": "^5.6.0",
+    "ultracite": "^7.8.0"
+  },
+  "engines": {
+    "bun": ">=1.1.0"
+  }
+}
