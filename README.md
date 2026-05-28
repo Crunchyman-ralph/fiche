@@ -1,54 +1,51 @@
 # Fiche
 
-> The Figma playground for PMs — a place to collaborate with delight on PRDs, briefs, and plans, with your AI agent and your colleagues, before exporting to the misery tools where work goes to be tracked.
+The Figma playground for PMs. Pronounced *feesh*.
 
-> Pronounced *feesh*. From the French — a focused, structured note. Every Doc in Fiche is, literally, a fiche.
+A place where you, your colleagues, and your AI all work on the same doc. Your AI isn't a chat panel beside the doc or a generator that spits out a draft and disappears. It actually edits the same file you're reviewing.
 
-## The bet
+## Why this exists
 
-Developers have endless tools. PMs settle for tools built for devs (VSCode to view markdown, GitHub to collaborate) and find them scary. The market leader in AI-PRD tooling is a document generator with collaboration locked behind a per-seat fee.
+The PMs I've shown this to all live in Claude Code or Codex now. They ask their AI for a PRD, it writes a markdown file, and then they're stuck. VS Code feels hostile if you're not a dev, GitHub PRs are a non-starter when you just want a colleague to leave a comment, and chatprd will let you collaborate but only behind a $29-per-seat paywall and with very loud opinions about what a PRD should look like.
 
-We are not another generator. We are the collaboration substrate — Word-style comments and suggested edits over plain Markdown, with your own Claude Code / Codex / Cursor acting as a first-class participant in the Doc alongside human colleagues.
+Fiche is what I wanted to exist between "I asked Claude for a draft" and "I pushed the tickets to Linear." You and your colleagues comment and suggest like in Google Docs. Your AI edits the same file through MCP, not "here's a draft, please copy-paste it back." When the doc is done, export to clean markdown and paste it wherever it needs to live next.
 
-The integrations everyone else is racing to ship? Your agent already has them. Your Claude Code can talk to Jira, Linear, Notion, Confluence, Slack — because *you* configured it to. Fiche doesn't compete with your agent for that job. We stay focused on being the place upstream where the thinking and the review happen.
+The integrations everyone else is racing to ship? Your agent already has them. Your Claude Code talks to Jira, Linear, Notion, Slack because you set it up to. Fiche doesn't try to be your agent's toolbelt. We sit upstream of all that, the place where the thinking happens before anything goes to the tools that just track it.
 
-## What we're building (MVP)
+## What's in MVP
 
-- Multi-user collaboration on a Markdown Doc, with doc-level presence (avatars in the top bar).
-- Word-style comments and suggested edits — threaded, accept/reject, no Markdown syntax in the user's face.
-- Linear revision history with a diff/compare view between any two revisions. One-click restore.
-- Bring-your-own-agent via MCP over SSE. Your AI authors and edits the same Doc you're reviewing.
-- Agent-driven onboarding — paste a prompt into Claude Code, your agent does the setup. We don't ship a UI wizard.
-- One-click export to clean Markdown.
-- Online-only, hosted-first; self-host is available for technical teams.
+Real-time editing on a shared doc, laid out so markdown syntax never stares back at you. Word-style accept/reject on comments and suggested edits. Revision history for the times your AI takes a turn you regret. Doc-level presence so you can see who else has the tab open. An MCP endpoint your agent connects to with one URL paste, no binary install, no JSON config. One export button.
 
-## What we're deliberately *not* building
+Online-only, hosted by us. Self-host works if you have a Docker host and want to run it yourself; same image either way.
 
-- **Integrations** to Jira / Linear / Notion / Confluence. Your agent already has those. See [ADR-0006](docs/adr/0006-no-integrations-agent-is-the-bridge.md).
-- **An in-product chat panel.** Your agent is the chat. See [ADR-0003](docs/adr/0003-agent-driven-onboarding.md).
-- **A document generator.** We have no opinions about how you write a PRD. That's the chatprd fight; not ours.
-- **Branching, sign-off, "Final" status, alignment workflows.** Alignment conversations happen in Slack and on Zoom; we don't try to move them into a doc tool.
-- **Offline mode, CRDT, live cursors.** See [ADR-0001](docs/adr/0001-central-server-online-only.md).
-- **A stdio MCP server.** Onboarding has to be paste-a-URL, not edit-a-config-file. See [ADR-0002](docs/adr/0002-mcp-sse-not-stdio.md).
+## What's not in MVP, and why
+
+No Jira / Linear / Notion sync. Your agent has those. I'm not interested in shipping a worse version of integrations you already configured ([ADR-0006](docs/adr/0006-no-integrations-agent-is-the-bridge.md)).
+
+No in-product chat panel. Your agent is the chat. The whole product breaks the moment we try to be ChatGPT too ([ADR-0003](docs/adr/0003-agent-driven-onboarding.md)).
+
+No PRD generator. I have no opinions about how you write a doc. That's chatprd's fight, and they can have it.
+
+No branching, no sign-off, no "Final" stamps. Alignment conversations happen in Slack and on Zoom; a doc tool trying to host that is fighting Slack for a job Slack already does.
+
+No offline mode, no CRDT, no live cursors mid-paragraph. The wedge is collaboration on shared state, not local-first sync ([ADR-0001](docs/adr/0001-central-server-online-only.md)).
+
+No stdio MCP. Connecting your agent has to be "paste this URL," not "install this binary and edit a config file" ([ADR-0002](docs/adr/0002-mcp-sse-not-stdio.md)).
 
 ## Repo orientation
 
-- [`CONTEXT.md`](CONTEXT.md) — domain language. Read this first if anything in the docs or code looks ambiguous.
-- [`ROADMAP.md`](ROADMAP.md) — what's deferred from MVP and why. Sparse on purpose.
-- [`docs/adr/`](docs/adr/) — the load-bearing architectural decisions, one paragraph each.
+- [`CONTEXT.md`](CONTEXT.md): the glossary. If a word means something specific in Fiche, it's defined here.
+- [`ROADMAP.md`](ROADMAP.md): what's deferred from MVP, and why.
+- [`docs/adr/`](docs/adr/): the load-bearing decisions, each with the reasoning that produced it.
 
-## Format
+## On the format
 
-Docs are stored as [Roughdraft-Flavored Markdown](https://github.com/Lex-Inc/roughdraft) (`@roughdraft/rfm`) — plain Markdown plus a small, portable review layer (CriticMarkup-based). The choice means:
-
-- Your Doc is always inspectable, diffable, and Git-friendly.
-- An AI agent can read and write the same file a human reads in the UI, without a sidecar database or hosted document format.
-- Fiche isn't a lock-in. Export-to-Markdown is a single button; the file you export is the file we stored.
+Docs are stored as [Roughdraft-Flavored Markdown](https://github.com/Lex-Inc/roughdraft) (`@roughdraft/rfm`): plain markdown plus CriticMarkup for comments and suggestions. No proprietary format, no lock-in. Open the file in any markdown editor, diff it in git, hand it to a different AI. The file you export is the file we stored.
 
 ## Status
 
-Pre-alpha. Building in public. Not yet shipped. The plan was sharpened through a long structured conversation; the decisions and the language live in the files above. The first working version will appear here once the editor spike is done.
+Pre-alpha. Plan and scaffold are here; no UI yet. Building in public from this commit on.
 
 ## License
 
-Apache 2.0. See [LICENSE](LICENSE).
+Apache 2.0.
