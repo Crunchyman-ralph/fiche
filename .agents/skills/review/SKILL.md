@@ -1,153 +1,211 @@
 ---
 name: review
-description: Review a Fiche code change for the things that actually matter — ADR fidelity, the transport-agnostic handler pattern, RFM round-trip safety, auth gating, schema migrations, and Ultracite compliance. Skip style nits; focus on what would block a merge or cause a production-shaped bug. Trigger with a PR URL, a diff, "review this", or after a meaningful chunk of code is written.
-argument-hint: "<PR URL, diff, file path, or branch name>"
+description: Review someone else's PR for Fiche. Read the diff, identify Blockers and Should-fix concerns, output structured findings the author can act on. Does NOT fix issues — the author fixes; you flag. Validates Fiche's ADR fidelity, transport-agnostic handler pattern, RFM round-trip safety, auth gating, schema migrations, and Ultracite compliance. Use this skill whenever the user says "review this PR", shares a PR URL, says "review #N", asks "is this code OK", "check this diff", "lmk if this looks good", "should I approve this", or pastes a `gh pr view` output. Trigger even when the user uses casual language about looking at someone's code. For preparing the user's own PR before opening it, use /pre-pr instead.
+argument-hint: "<PR URL, PR number, branch name, or diff range>"
 ---
 
 # /review
 
-Fiche-shaped code review. Direct, opinionated, focused on the small set of things that are uniquely load-bearing in this codebase. Not a general-purpose linter.
+Reviewer-side audit of someone else's PR. Read it carefully, surface what would block a merge, leave structured findings the author can act on.
 
-## What this skill is FOR
+**This skill does not fix issues.** The author fixes; the reviewer flags. If the user is the author preparing their own PR, redirect to `/pre-pr`.
 
-- Code in `apps/api`, `apps/web`, or `packages/*` is being added, modified, or refactored.
-- You want to know whether it respects the architectural commitments documented in `docs/adr/`.
-- You want to know whether it will survive contact with the actual product loop (PM → agent → Doc → revision → review).
+## When this skill fires
 
-## What this skill is NOT for
+- User pastes a PR URL or references `#N`.
+- User says "review this", "check this PR", "is this code OK", "should I approve".
+- User asks for an opinion on someone else's branch or diff.
+- User pastes `gh pr view` / `gh pr diff` output.
 
-- General style nits already enforced by Ultracite. The linter is the linter; we're not its understudy.
-- Subjective taste on naming or formatting that has no operational consequence.
-- Generic "is this code good?" assessments. Be specific or be silent.
+## Companion subagents and skills
 
-## How to read the change
+- **Task subagent `fiche-deep-review`** — invoke via the Task tool for structural / maintainability depth. Best for diffs >500 lines, file restructures, or changes that smell like they restructure a layer rather than add a feature. The subagent loads the thermo-nuclear rubric and applies it through Fiche's lens.
+- **`/thermo-nuclear-code-quality-review`** — when you want the deep audit yourself (not delegated to a subagent), invoke this directly. Same rubric, your context.
+- **`/get-pr-comments`** — useful when reviewing iterations of a PR. Pulls existing reviewer comments so you don't repeat them.
 
-1. Read the diff in full. Don't just summarize — note every file touched and one sentence about what changed in each.
-2. For each ADR referenced in the affected area, check whether the change reinforces or contradicts the decision. Specifically:
-   - `ADR-0001` central server, online-only → no offline / local-first / CRDT logic.
-   - `ADR-0002` MCP via SSE, not stdio → no local subprocess paths in the MCP server.
-   - `ADR-0003` agent-driven onboarding → no in-UI setup wizard replacing the install.md path.
-   - `ADR-0004` AI edits apply by default → handler defaults for `mode` are `"apply"`; suggestions are opt-in.
-   - `ADR-0005` human-primary attribution → annotations carry `by="<user>" via="<agent>"`, never `by="AI"`.
-   - `ADR-0006` no integrations → no Jira / Linear / Notion / Slack push code in `apps/api`.
-   - `ADR-0008` web-only → no Electron / Tauri / React Native / Capacitor imports.
-   - `ADR-0009` tech stack → no introduction of Node-only code paths, no abandonment of Bun, no Next.js full-stack API routes for backend logic.
-   - `ADR-0010` PostHog as sole observability → no Sentry / Datadog / OTel SDKs added.
-   - `ADR-0011` Coolify hosting → no Vercel-specific Edge runtime markers or other host-locking code.
-3. Then go through the Fiche-specific checks below.
+## Workflow
 
-## Fiche-specific checks (priority order)
+```bash
+gh pr view <PR-or-URL> --json title,body,baseRefName,headRefName,additions,deletions,changedFiles
+gh pr diff <PR-or-URL>
+gh pr checks <PR-or-URL>
+```
 
-### 1. Transport-agnostic handler pattern (apps/api)
+Then:
 
-The four MVP verbs (`create_doc`, `get_doc`, `edit_doc`, `post_comment`) live in `apps/api/src/handlers/docs.ts`. Both `apps/api/src/routes/index.ts` (HTTP) and `apps/api/src/mcp/index.ts` (MCP-SSE) call them. The handler is the single source of truth.
+1. Read the PR description. Does it match the diff? If the description says "fix the auth gate" but the diff also touches `revision` storage, flag the scope mismatch.
+2. Walk the diff. For each touched file, ask: what's the intent? Does the change cleanly serve that intent, or does it ride along extra work?
+3. Apply the Fiche checklist below. Cite file paths and line numbers in every finding.
+4. Decide on a verdict: APPROVE, REQUEST CHANGES, or NEEDS DISCUSSION.
+5. Emit the structured findings (see output format).
 
-Reject:
+## Fiche-specific checklist
 
-- Logic in a route handler that should be in `handlers/`. If `routes/index.ts` is doing anything more than `parse → call handler → return result`, it's wrong.
-- Logic in the MCP handler that should be in `handlers/`. Same rule, other side.
-- Anything that breaks one transport while updating the other. Both transports must continue to invoke the same handler.
-- HTTP- or MCP-specific assumptions leaking into `handlers/` (e.g., reading raw headers, manipulating Elysia's context). Handlers take typed inputs and return typed outputs.
+The checklist below mirrors `/pre-pr` but from the reviewer's seat. The author was supposed to catch these; if any slipped through, flag them and explain the consequence.
 
-### 2. RFM round-trip safety (packages/db + handlers)
+### 1. ADR fidelity (BLOCKER on contradiction)
 
-`revision.rfm` stores the entire Doc state, including comments and suggestions as CriticMarkup. ANY code that reads, writes, parses, or mutates this field is safety-critical.
+Reasoning: ADRs are the load-bearing decisions. A change that contradicts one isn't a bug — it's a redirect of the architecture. A PR redirecting architecture needs a new ADR explaining why, not a silent change in feature code.
 
-Reject:
+Check the change against:
 
-- Direct string manipulation of `rfm` content (insert/delete substrings). RFM has structure; treat it through `@roughdraft/rfm` (or an equivalent parser when we vendor it).
-- Code that loses or reorders inline annotations during a transformation.
-- Code that creates a new revision without copying forward the previous revision's annotations when the annotation spans were untouched.
+- **ADR-0001** — no offline / local-first / CRDT logic.
+- **ADR-0002** — no stdio MCP server paths. SSE only.
+- **ADR-0003** — no in-UI onboarding wizard replacing the agent-driven path.
+- **ADR-0004** — handler `mode` default is `"apply"`. Suggestions are opt-in.
+- **ADR-0005** — annotations are `by="<user>" via="<agent>"`, never `by="AI"`.
+- **ADR-0006** — no integrations (Jira / Linear / Notion / Slack / etc.) in `apps/api`.
+- **ADR-0008** — no native-shell imports (Electron / Tauri / RN / Capacitor).
+- **ADR-0009** — Bun + Elysia + Next.js + Drizzle. No Node-only paths, no Next.js backend API routes.
+- **ADR-0010** — PostHog only. No Sentry / Datadog / OpenTelemetry SDKs.
+- **ADR-0011** — Coolify hosting. No Vercel Edge runtime markers.
 
-### 3. Auth gating (apps/api)
+### 2. Transport-agnostic handler pattern (BLOCKER)
 
-Every route under `/api/docs/*` must require a real session. The session is exposed via Elysia's `.derive()` in `apps/api/src/index.ts`.
+Reasoning: the four MVP verbs are exposed via HTTP and MCP-SSE. If logic lives in either transport instead of in `handlers/`, the two surfaces silently drift.
 
-Reject:
+Flag:
 
-- A new route that reads or modifies a Doc without checking `user`.
-- A new route that gates on `session` but not on Doc ownership / collaborator membership.
-- Any MCP verb that bypasses auth. The MCP token is per-user; handlers must respect it.
+- Business logic in `apps/api/src/routes/index.ts` or `apps/api/src/mcp/index.ts` that belongs in `handlers/`.
+- A change that updates one transport without the other.
+- HTTP- or MCP-specific assumptions leaking into `handlers/`.
 
-### 4. Schema migrations (packages/db)
+### 3. RFM round-trip safety (BLOCKER)
 
-Any change to `packages/db/src/schema.ts` must ship with a generated migration in `packages/db/drizzle/`. CI catches drift in the `schema-drift` job.
+Reasoning: `revision.rfm` is the canonical Doc state. Direct string manipulation is the fastest way to silently corrupt a Doc.
 
-Reject:
+Flag:
 
-- A PR that adds/removes/renames a column without `bun run db:generate` having been run and the result committed.
-- A PR that hand-writes SQL in a migration when drizzle-kit would have generated it.
-- A breaking schema change without a note about how to apply it (zero-downtime story or "self-host operators must re-migrate").
+- `.replace()` / `.slice()` / `.split()` on `rfm` content.
+- Code that loses or reorders inline annotations.
+- New revisions that don't carry forward unchanged annotations.
 
-### 5. Ultracite rule compliance
+### 4. Auth gating (BLOCKER on missing)
 
-The local rules that have already bitten this repo:
+Reasoning: every Doc operation is per-user. A single unauthed route is how data leaks happen.
 
-- `no-warning-comments`: no `// TODO:` / `// FIXME:` / `// XXX:` / `// HACK:`. Rephrase as prose, or extract to an issue.
-- `func-style`: exports are arrow function expressions, not `function` declarations.
-- `require-await`: an `async` function must `await` something. Drop `async` if it doesn't.
-- `no-inline-comments`: comments live on their own line, never trailing code.
-- `no-empty-file`: every shipped file has at least one real export.
-- `no-magic-numbers`: extract to a named constant with a descriptive name.
-- `sort-keys`: object keys are alphabetical (auto-fix handles this).
+Flag:
 
-Reject any of these silently introduced. If `bun run check` would fail, the PR fails.
+- A new `/api/docs/*` route that doesn't check `user`.
+- A route that gates on `session` but not on Doc ownership / collaborator membership.
+- An MCP verb that bypasses auth.
 
-### 6. PostHog as the only observability vendor
+### 5. Schema migrations (BLOCKER on drift)
 
-Per ADR-0010.
+Reasoning: schema and migration files have to agree. CI catches drift; flag it here too so the author can fix before another CI cycle.
 
-Reject:
+Flag:
 
-- New deps on `@sentry/*`, `@datadog/*`, `@opentelemetry/*`, or any other observability vendor.
-- New PostHog event names that don't follow the agreed taxonomy (`signup_completed`, `mcp_first_connect`, `first_doc_created_by_agent`, etc.). If you're adding an event, document why in the PR.
+- A schema change without a corresponding migration in `packages/db/drizzle/`.
+- Hand-written SQL when drizzle-kit would have generated it.
+- A breaking schema change without a rollout note (zero-downtime story or "self-host operators must re-migrate").
 
-## Universal checks (still real, just secondary)
+### 6. Ultracite compliance (BLOCKER if CI hasn't caught yet)
 
-- **Edge cases**: empty Doc, single-character span, span at index 0, span at end-of-file, span across multi-byte UTF-8 characters, an MCP request from an unauthenticated agent.
-- **Error paths**: every `throw` is observable; no silent failures; no `catch` that just logs and continues unless the comment explains why.
-- **Concurrency**: revision creation and "current revision pointer" update — is this atomic? If not, what happens when two agents edit the same Doc at once?
-- **Indexing / N+1**: any new query over `revision` or `comment` data; does the index in `schema.ts` cover it?
-- **Secrets**: no env values in code, no committed `.env`.
+Common Ultracite rule violations:
 
-## What NOT to flag
+- `no-warning-comments` — `// TODO:` and friends. Rephrase as prose.
+- `func-style` — arrow expressions for exports.
+- `require-await` — drop `async` if there's no `await`.
+- `no-inline-comments` — comments on their own line.
+- `no-empty-file` — every shipped file has a real export.
+- `no-magic-numbers` — named constants.
+- `sort-keys` — alphabetical.
 
-- Naming preferences when the name is clearly readable.
-- Single-line function ordering.
-- Whether to use `const` or `let` (Ultracite handles this).
-- "I'd have done it differently" comments without a concrete bug or violation behind them.
-- Anything Prettier / Oxfmt would auto-fix.
+### 7. Dead code (SHOULD-FIX)
+
+Unused exports, commented-out code, dangling references to removed columns/tables, orphan files.
+
+### 8. DRY (SHOULD-FIX)
+
+Duplication of logic already in `packages/` or already-imported deps (e.g., `zod`). If tiny (≤3 similar lines), let it go.
+
+### 9. Self-host parity (SHOULD-FIX)
+
+New env vars need sensible defaults or a clear startup failure. New service deps must be optional or documented as self-host prereqs.
+
+### 10. Karpathy guidelines (NIT, but escalate if severe)
+
+Speculative abstraction, defensive error handling for impossible scenarios, narrating comments, drive-by refactors mixed into a feature PR. If severe, recommend the author run `/deslop`.
+
+### 11. Tests (SHOULD-FIX for non-trivial new logic)
+
+Did the PR add a real new path without tests? Auth, doc-mutation, and MCP write paths especially deserve coverage as they land.
+
+## Severity triage
+
+| Severity | Action |
+|---|---|
+| **Blocker** | REQUEST CHANGES verdict. Author must address before merge. |
+| **Should-fix** | Note in review. Author should address in this PR if cheap; in a follow-up otherwise. |
+| **Nit** | Optional. Mention if low cost; suppress if there are bigger fish. |
+
+If there are no Blockers and the change cleanly serves its stated intent, APPROVE. Don't manufacture findings — a clean PR deserves a clean review.
 
 ## Output format
 
 ```markdown
-## Review: <PR title or short description>
+## Review of #<PR number or title>
 
 ### Verdict
 <APPROVE / REQUEST CHANGES / NEEDS DISCUSSION>
 
-### Critical (block merge)
+### Summary (1-2 sentences)
+What the PR does, and your one-sentence read on whether it serves that intent cleanly.
 
-- **<file>:<line> — <one-line issue>**
-  ADR or rule violated: <reference>
-  Why it matters: <one sentence on the production-shaped consequence>
-  Suggested fix: <concrete code direction, not a vague gesture>
+### Blockers (REQUEST CHANGES if any)
 
-### Worth fixing (do not block, but address)
+- **<file>:<line> — <one-line issue title>**
+  Rule: <ADR or section name>
+  Why it matters: <one-sentence operational consequence>
+  Suggested fix: <concrete direction, not a vague gesture>
 
-- <file>:<line> — <issue with why and fix>
+### Should-fix
 
-### Notes
-<observations that aren't issues but are worth knowing>
+- <file>:<line> — <issue with why and fix direction>
+
+### Nits
+
+- <file>:<line> — <one-line nit, optional to address>
 
 ### What's good
-<one or two specific things, not generic praise>
+
+- <one or two specific things, not generic praise>
+
+### Notes
+
+- Observations that aren't issues but are worth knowing (e.g., "the migration touches `account` which Better Auth manages directly; verify the integration tests still pass").
 ```
 
-If there are zero critical findings, say so plainly and stop. Don't pad.
+## Example finding
+
+```
+### Blockers
+
+- **apps/api/src/routes/index.ts:24 — Route filters the handler's
+  result before returning.**
+  Rule: transport-agnostic handler pattern (section 2).
+  Why it matters: the MCP transport at apps/api/src/mcp/index.ts
+  doesn't do the same filter, so MCP clients see different data than
+  HTTP clients for the same operation. The two transports must agree.
+  Suggested fix: move the filter into editDoc in
+  apps/api/src/handlers/docs.ts. The route should only
+  parse → call handler → return result.
+```
+
+That's the level of specificity to leave: cite the file and line, name the rule, state the operational consequence in one sentence, give a concrete fix direction.
 
 ## Tone
 
-Direct. High-conviction. Pretend you're the senior engineer who has to maintain this code at 3am six months from now. Be specific. Cite files and lines. Reject vague language ("might want to consider…") in favor of concrete asks ("Move the parse step out of the route handler; it belongs in `handlers/docs.ts`.").
+Direct. Specific. Surface what an experienced reviewer would catch. Don't pile on nits when there are Blockers; the author needs to address the big stuff first.
 
-If you find nothing critical, that's the result. Don't manufacture findings.
+If a finding is structural rather than line-level (e.g., "this whole module would be cleaner as a state machine"), invoke the `fiche-deep-review` Task subagent with the diff and full file contents — let it do the rubric work and then incorporate its top findings into your review.
+
+If there are no Blockers, APPROVE without padding. A short clean review is a service to the author.
+
+## What this skill does NOT do
+
+- It does not edit the PR. The author edits.
+- It does not call `gh pr merge`. The author or a maintainer merges.
+- It does not run `/pre-pr` (that's the author's skill, not the reviewer's).
+- It does not run `/make-pr-easy-to-review` (that's also the author's job).
