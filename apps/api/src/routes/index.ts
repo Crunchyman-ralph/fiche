@@ -1,11 +1,22 @@
 import { Elysia, t } from "elysia";
 
-import { createDoc, editDoc, getDoc, postComment } from "../handlers/docs.ts";
+import {
+  createDoc,
+  createDocInput,
+  editDoc,
+  editDocInput,
+  getDoc,
+  postComment,
+  postCommentInput,
+} from "../handlers/docs.ts";
 
 // HTTP transport — what the web UI calls via Eden Treaty.
 // The MCP transport (apps/api/src/mcp) wraps the same handlers for agents.
+// Elysia does shape validation; Zod re-parsing at the boundary applies
+// schema defaults (e.g. editDocInput's mode = "apply") so handlers
+// receive a fully-defaulted input.
 export const httpRoutes = new Elysia({ prefix: "/api" })
-  .post("/docs", ({ body }) => createDoc(body), {
+  .post("/docs", ({ body }) => createDoc(createDocInput.parse(body)), {
     body: t.Object({
       content: t.Optional(t.String()),
       title: t.Optional(t.String()),
@@ -14,7 +25,8 @@ export const httpRoutes = new Elysia({ prefix: "/api" })
   .get("/docs/:id", ({ params }) => getDoc({ id: params.id }))
   .post(
     "/docs/:doc_id/edits",
-    ({ params, body }) => editDoc({ doc_id: params.doc_id, ...body }),
+    ({ body, params }) =>
+      editDoc(editDocInput.parse({ ...body, doc_id: params.doc_id })),
     {
       body: t.Object({
         by: t.String(),
@@ -28,7 +40,8 @@ export const httpRoutes = new Elysia({ prefix: "/api" })
   )
   .post(
     "/docs/:doc_id/comments",
-    ({ params, body }) => postComment({ doc_id: params.doc_id, ...body }),
+    ({ body, params }) =>
+      postComment(postCommentInput.parse({ ...body, doc_id: params.doc_id })),
     {
       body: t.Object({
         by: t.String(),
