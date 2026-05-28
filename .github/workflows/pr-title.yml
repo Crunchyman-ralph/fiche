@@ -1,0 +1,46 @@
+name: pr-title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, ready_for_review]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  conventional-commits:
+    name: Conventional commits
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const allowed = [
+              "feat", "fix", "chore", "docs", "refactor",
+              "test", "ci", "build", "style", "perf", "revert",
+            ];
+            const pattern = new RegExp(
+              `^(${allowed.join("|")})(\\([a-zA-Z0-9\\-.,_ /]+\\))?!?:\\s.+`
+            );
+            const title = context.payload.pull_request.title.trim();
+
+            if (pattern.test(title)) {
+              core.info(`OK: "${title}" follows conventional commits.`);
+              return;
+            }
+
+            const lines = [
+              `PR title does not follow Conventional Commits.`,
+              ``,
+              `Current title: "${title}"`,
+              ``,
+              `Required: type(scope?): subject`,
+              `Allowed types: ${allowed.join(", ")}`,
+              ``,
+              `Examples:`,
+              `  feat: add doc-level presence avatars`,
+              `  fix(api): handle null session in derive`,
+              `  chore: bump drizzle-orm to 0.37`,
+            ].join("\n");
+
+            core.setFailed(lines);

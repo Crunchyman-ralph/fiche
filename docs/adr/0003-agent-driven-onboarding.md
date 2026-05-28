@@ -4,7 +4,7 @@ After signup, the canonical onboarding path is "paste this prompt into your AI a
 
 ## Why
 
-Our user is AI-native by definition — a PM already using an agent every day. They reach for chat before menus; their UI is increasingly *their agent*. A traditional onboarding wizard treats them as if they don't already have a better tool for stepping through instructions. They do, and it's the same tool we want connected to Fiche anyway. Letting the agent do the work demonstrates the product's central value in the first session — the starter Doc exists because the agent put it there, in the user's real environment, not because we pre-baked a sandbox.
+Our user is AI-native by definition — a PM already using an agent every day. They reach for chat before menus; their UI is increasingly _their agent_. A traditional onboarding wizard treats them as if they don't already have a better tool for stepping through instructions. They do, and it's the same tool we want connected to Fiche anyway. Letting the agent do the work demonstrates the product's central value in the first session — the starter Doc exists because the agent put it there, in the user's real environment, not because we pre-baked a sandbox.
 
 Inspiration: browser-harness onboards exactly this way — the install.md is the UI.
 

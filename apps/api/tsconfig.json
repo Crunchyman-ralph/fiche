@@ -2,7 +2,7 @@
   "extends": "@fiche/tsconfig/base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["bun-types"],
+    "types": ["bun"],
     "lib": ["ES2022"]
   },
   "include": ["src/**/*.ts"],

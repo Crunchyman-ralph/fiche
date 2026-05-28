@@ -1,6 +1,6 @@
 # Fiche
 
-The Figma playground for PMs. Pronounced *feesh*.
+The Figma playground for PMs. Pronounced _feesh_.
 
 A place where you, your colleagues, and your AI all work on the same doc. Your AI isn't a chat panel beside the doc or a generator that spits out a draft and disappears. It actually edits the same file you're reviewing.
 

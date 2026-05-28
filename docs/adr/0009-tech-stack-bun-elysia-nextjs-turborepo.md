@@ -13,25 +13,25 @@ Next.js full-stack would be the conservative pick, but it doesn't fit Fiche's tw
 
 ## The stack
 
-| Layer | Choice | Why |
-|---|---|---|
-| Runtime | **Bun** | Speed + native TypeScript + single binary. The one innovation token. |
-| Monorepo | **Turborepo + Bun workspaces** | Industry standard for TS monorepos; fast caching; well-supported by Bun. |
-| Backend | **Elysia (on Bun)** | First-class SSE, end-to-end types via Eden Treaty, idiomatic Bun. |
-| Frontend | **Next.js (App Router)** | SSR for marketing + docs, RSC for landing pages, client components for the editor. Single frontend, no over-splitting. |
-| UI | **Tailwind CSS + shadcn/ui** | Owned components (not a dep), production-grade defaults, fits the design system from ADR-0007's positioning. |
-| Editor | **TipTap on ProseMirror** | Cherry-picked from roughdraft (their `packages/app` is MIT). Layer 1 (format) is `@roughdraft/rfm`; Layer 2 (editor) is TipTap, ours to evolve. |
-| Format | **`@roughdraft/rfm`** | Used directly as a dependency, not forked. Layer 1 of the two-layer editor architecture. |
-| Database | **Postgres (hosted) / SQLite (self-host)** | Drizzle schema is portable across both; hosted users get scale, self-hosters get a zero-dep file. |
-| ORM | **Drizzle** | TypeScript-first, SQL-first, lightweight, Bun-friendly, supports both Postgres and SQLite from the same schema. |
-| Auth | **Better Auth** | Modern, TypeScript, OAuth (Google) + email + magic links + sessions. Self-hostable. |
-| Type sharing | **Eden Treaty (Elysia)** | Adopted day one. Frontend gets autocomplete on backend routes; refactors propagate automatically. |
-| Linting / format | **Ultracite (Oxlint + Oxfmt)** | Ultracite is a zero-config preset orchestrating Oxlint + Oxfmt — Rust-based, faster than Biome, AI-agent-aware by default. `bun x ultracite check` / `bun x ultracite fix` is the surface. |
-| Git hooks | **Lefthook** | Faster Husky alternative; runs `ultracite fix` on staged files pre-commit. |
-| Unit tests | **Bun test** | Built into the runtime; no Jest setup. |
-| E2E tests | **Playwright** | Standard for browser-driven testing of a collaborative editor. |
-| Analytics + Errors + LLM observability | **PostHog** | One tool covers product analytics, session recording, error tracking, and LLM observability. See ADR-0010. |
-| Docs framework | **Fumadocs** | Embedded as a route segment in `apps/web/app/docs/`. Next.js-native, MDX, search-first. |
+| Layer                                  | Choice                                     | Why                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime                                | **Bun**                                    | Speed + native TypeScript + single binary. The one innovation token.                                                                                                                       |
+| Monorepo                               | **Turborepo + Bun workspaces**             | Industry standard for TS monorepos; fast caching; well-supported by Bun.                                                                                                                   |
+| Backend                                | **Elysia (on Bun)**                        | First-class SSE, end-to-end types via Eden Treaty, idiomatic Bun.                                                                                                                          |
+| Frontend                               | **Next.js (App Router)**                   | SSR for marketing + docs, RSC for landing pages, client components for the editor. Single frontend, no over-splitting.                                                                     |
+| UI                                     | **Tailwind CSS + shadcn/ui**               | Owned components (not a dep), production-grade defaults, fits the design system from ADR-0007's positioning.                                                                               |
+| Editor                                 | **TipTap on ProseMirror**                  | Cherry-picked from roughdraft (their `packages/app` is MIT). Layer 1 (format) is `@roughdraft/rfm`; Layer 2 (editor) is TipTap, ours to evolve.                                            |
+| Format                                 | **`@roughdraft/rfm`**                      | Used directly as a dependency, not forked. Layer 1 of the two-layer editor architecture.                                                                                                   |
+| Database                               | **Postgres (hosted) / SQLite (self-host)** | Drizzle schema is portable across both; hosted users get scale, self-hosters get a zero-dep file.                                                                                          |
+| ORM                                    | **Drizzle**                                | TypeScript-first, SQL-first, lightweight, Bun-friendly, supports both Postgres and SQLite from the same schema.                                                                            |
+| Auth                                   | **Better Auth**                            | Modern, TypeScript, OAuth (Google) + email + magic links + sessions. Self-hostable.                                                                                                        |
+| Type sharing                           | **Eden Treaty (Elysia)**                   | Adopted day one. Frontend gets autocomplete on backend routes; refactors propagate automatically.                                                                                          |
+| Linting / format                       | **Ultracite (Oxlint + Oxfmt)**             | Ultracite is a zero-config preset orchestrating Oxlint + Oxfmt — Rust-based, faster than Biome, AI-agent-aware by default. `bun x ultracite check` / `bun x ultracite fix` is the surface. |
+| Git hooks                              | **Lefthook**                               | Faster Husky alternative; runs `ultracite fix` on staged files pre-commit.                                                                                                                 |
+| Unit tests                             | **Bun test**                               | Built into the runtime; no Jest setup.                                                                                                                                                     |
+| E2E tests                              | **Playwright**                             | Standard for browser-driven testing of a collaborative editor.                                                                                                                             |
+| Analytics + Errors + LLM observability | **PostHog**                                | One tool covers product analytics, session recording, error tracking, and LLM observability. See ADR-0010.                                                                                 |
+| Docs framework                         | **Fumadocs**                               | Embedded as a route segment in `apps/web/app/docs/`. Next.js-native, MDX, search-first.                                                                                                    |
 
 ## Repo layout
 

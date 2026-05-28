@@ -1,14 +1,15 @@
-version: "3.9"
-
 # Local dev: just Postgres. Run the apps with `bun dev` against this DB.
 # For prod / Coolify, the apps deploy from their own Dockerfiles alongside this.
+#
+# Host port defaults to 5432; override via POSTGRES_PORT in .env if another
+# Postgres instance is already running on 5432 (common on dev machines).
 
 services:
   postgres:
     image: postgres:16-alpine
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     environment:
       POSTGRES_USER: fiche
       POSTGRES_PASSWORD: fiche

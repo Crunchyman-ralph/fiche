@@ -19,9 +19,9 @@ PostHog is itself open-source (MIT + Cloud commercial layer), which matches our 
 
 ## Deployment defaults
 
-| Deployment | Analytics |
-|---|---|
-| **Hosted Fiche** | PostHog Cloud enabled. Opt-out via cookie banner. EU users get GDPR-compliant consent flow. |
+| Deployment            | Analytics                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------- |
+| **Hosted Fiche**      | PostHog Cloud enabled. Opt-out via cookie banner. EU users get GDPR-compliant consent flow.     |
 | **Self-hosted Fiche** | Disabled by default. Operators opt in via env var (`POSTHOG_PROJECT_KEY=...`). Zero phone-home. |
 
 This asymmetry is deliberate. Hosted users get the analytics so we can improve the product; self-hosters get full privacy by default and can connect their own PostHog instance if they want it.
@@ -36,6 +36,7 @@ This asymmetry is deliberate. Hosted users get the analytics so we can improve t
 6. `first_suggestion_accepted` — the loop closed
 
 Plus the colleague-invite funnel:
+
 1. `invite_link_copied`
 2. `invite_link_clicked`
 3. `colleague_signup_completed`

@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "skills": {
+    "control-ui": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/control-ui/SKILL.md",
+      "computedHash": "29343abf8da1f692915ef82d11a1ce6d03d211101792b39f8c66e2f7c7868d05"
+    },
+    "deslop": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/deslop/SKILL.md",
+      "computedHash": "8883a7d459c07a0b2ee06972e79baa634009aa3bab969a6650acbefac394ad41"
+    },
+    "fix-ci": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/fix-ci/SKILL.md",
+      "computedHash": "4fd612543072facaaf7193c3a28cef12507ba6826d3a533836b1c9cc1c511e53"
+    },
+    "fix-merge-conflicts": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/fix-merge-conflicts/SKILL.md",
+      "computedHash": "8404e1b711c7da7a35049ecb6e722af7da64af849ff61d6b1ebcaac046f3f35e"
+    },
+    "get-pr-comments": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/get-pr-comments/SKILL.md",
+      "computedHash": "598f4df0600f25edbafb5a15933869ae967d35c5d2309279f1c3755cbbf78667"
+    },
+    "loop-on-ci": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/loop-on-ci/SKILL.md",
+      "computedHash": "2d6eaadbe66bf8c3fc872c74f08e867e3a1f51c2f5948f71a77a90b2cc12d4cd"
+    },
+    "make-pr-easy-to-review": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/make-pr-easy-to-review/SKILL.md",
+      "computedHash": "8b3e62ce5609388731966d66725a0962e6d6c249bf384b84e131eb24de3c2b27"
+    },
+    "pr-review-canvas": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/pr-review-canvas/SKILL.md",
+      "computedHash": "b9ad154880ed8e865185f28fa646384475ae324af0baffc7f5787904f4b30bda"
+    },
+    "review-and-ship": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/review-and-ship/SKILL.md",
+      "computedHash": "8d6a4b696b9c89ee19a8aebdcc3a624d092911a7233273039b00ededd14de187"
+    },
+    "thermo-nuclear-code-quality-review": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/thermo-nuclear-code-quality-review/SKILL.md",
+      "computedHash": "9052b01b46b1d8dbf94c45f9313ec1983443f9a460e83d49cdc7fe0f640ca476"
+    },
+    "workflow-from-chats": {
+      "source": "cursor/plugins",
+      "sourceType": "github",
+      "skillPath": "cursor-team-kit/skills/workflow-from-chats/SKILL.md",
+      "computedHash": "421f2e4ace6d101b4234e5ad9141adce0a13bf4c3aadd41fc63ea051a73ba2a0"
+    }
+  }
+}
