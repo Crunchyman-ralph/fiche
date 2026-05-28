@@ -4,7 +4,7 @@ A collaborative document surface for product managers and their AI agents. Word-
 
 Positioning: Fiche is the **Figma playground for PMs** — the place where PMs collaborate with delight, with their agents and with each other, before exporting to the misery tools (Jira, Linear, Notion, Confluence) where the work goes to be tracked. It is upstream of those tools, not a replacement for them.
 
-The name comes from the French *fiche* — a focused, structured note or record (a *fiche produit*, a *fiche de lecture*, the colored draft paper students use during the bac). Every Doc in Fiche is, literally, a fiche.
+The name comes from the French _fiche_ — a focused, structured note or record (a _fiche produit_, a _fiche de lecture_, the colored draft paper students use during the bac). Every Doc in Fiche is, literally, a fiche.
 
 ## Language
 
@@ -17,7 +17,7 @@ A human collaborator on a Doc. Co-authors act through either the web UI directly
 _Avoid_: collaborator, reviewer, editor, contributor.
 
 **Agent**:
-An AI tool (Claude Code, Codex, Cursor, Copilot, etc.) that performs actions on a Co-author's behalf via the MCP. Agents are *means*, not actors — they do not have their own identity in a Doc. When an Agent makes a change, the annotation reads `by="<co-author>" via="<agent>"` (e.g., `by="ralph" via="claude"`), matching the Slack convention of attributing to the human with the AI noted as the vehicle.
+An AI tool (Claude Code, Codex, Cursor, Copilot, etc.) that performs actions on a Co-author's behalf via the MCP. Agents are _means_, not actors — they do not have their own identity in a Doc. When an Agent makes a change, the annotation reads `by="<co-author>" via="<agent>"` (e.g., `by="ralph" via="claude"`), matching the Slack convention of attributing to the human with the AI noted as the vehicle.
 _Avoid_: AI co-author, AI user, bot, assistant.
 
 **Suggestion**:

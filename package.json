@@ -2,11 +2,11 @@
   "name": "fiche",
   "version": "0.0.0",
   "private": true,
-  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",

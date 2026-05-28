@@ -4,8 +4,8 @@
 import { z } from "zod";
 
 export const createDocInput = z.object({
-  title: z.string().optional(),
   content: z.string().optional(),
+  title: z.string().optional(),
 });
 
 export const getDocInput = z.object({
@@ -13,22 +13,22 @@ export const getDocInput = z.object({
 });
 
 export const editDocInput = z.object({
-  doc_id: z.string(),
-  span: z.object({ from: z.number(), to: z.number() }).optional(),
-  change: z.string(),
-  mode: z.enum(["apply", "suggest"]).default("apply"),
   by: z.string(),
-  via: z.string().optional(),
+  change: z.string(),
+  doc_id: z.string(),
+  mode: z.enum(["apply", "suggest"]).default("apply"),
   note: z.string().optional(),
+  span: z.object({ from: z.number(), to: z.number() }).optional(),
+  via: z.string().optional(),
 });
 
 export const postCommentInput = z.object({
+  by: z.string(),
   doc_id: z.string(),
+  re: z.string().optional(),
   span: z.object({ from: z.number(), to: z.number() }).optional(),
   text: z.string(),
-  by: z.string(),
   via: z.string().optional(),
-  re: z.string().optional(),
 });
 
 export type CreateDocInput = z.infer<typeof createDocInput>;
@@ -36,19 +36,13 @@ export type GetDocInput = z.infer<typeof getDocInput>;
 export type EditDocInput = z.infer<typeof editDocInput>;
 export type PostCommentInput = z.infer<typeof postCommentInput>;
 
-// TODO: wire these up to @fiche/db.
-export async function createDoc(_input: CreateDocInput) {
+// Bodies below resolve to throw "not implemented"; real implementations
+// land in the follow-up commit once the schema is migrated.
+const notImplemented = (): never => {
   throw new Error("not implemented");
-}
+};
 
-export async function getDoc(_input: GetDocInput) {
-  throw new Error("not implemented");
-}
-
-export async function editDoc(_input: EditDocInput) {
-  throw new Error("not implemented");
-}
-
-export async function postComment(_input: PostCommentInput) {
-  throw new Error("not implemented");
-}
+export const createDoc = (_input: CreateDocInput) => notImplemented();
+export const getDoc = (_input: GetDocInput) => notImplemented();
+export const editDoc = (_input: EditDocInput) => notImplemented();
+export const postComment = (_input: PostCommentInput) => notImplemented();

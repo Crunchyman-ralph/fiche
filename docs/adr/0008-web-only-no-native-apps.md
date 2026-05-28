@@ -28,7 +28,7 @@ The same rule we apply to integrations (ADR-0006) applies here: native apps ente
 
 ## Considered and rejected
 
-- **Tauri** — most mature cross-platform shell, Rust-based, small bundles. The right choice *if* we had to ship native — but we don't, and going native at MVP is a multi-month detour from the actual product.
+- **Tauri** — most mature cross-platform shell, Rust-based, small bundles. The right choice _if_ we had to ship native — but we don't, and going native at MVP is a multi-month detour from the actual product.
 - **Electron** — boring default, heavy bundles, mature ecosystem. Same verdict as Tauri.
 - **zero-native (Vercel Labs)** — experimental, recently released, "one codebase, native + web" pitch. Promising but bleeding-edge; betting our editor on a v0.x experimental library is the wrong risk profile for the central engineering asset.
 - **React Native / Expo for mobile** — mature, but mobile-native is wrong-audience and ships nothing the responsive web doesn't.

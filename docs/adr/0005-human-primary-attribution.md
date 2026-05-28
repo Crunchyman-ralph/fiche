@@ -13,7 +13,7 @@ In RFM, `by` is a free-form label — the spec uses "user" and "AI" as illustrat
 - UI shows "Ralph" as the actor with a small Agent icon (Claude/Codex/Cursor) when `via` is present. Tooltip or detail panel shows "Ralph, via Claude, 2:14 PM" for transparency.
 - Audit / revision history is per-human. "Ralph made 12 edits today" counts all edits Ralph triggered, including ones Claude performed on his behalf.
 - Multiple Agents per user is supported by data but probably not surfaced in UI for MVP. If a Co-author connects multiple Agents, each annotation records which one acted.
-- Open question deferred: how do we handle Agent actions that *no human authorized* — e.g., a scheduled summarization or a cron job? Probably needs a `bot` or `service` attribution class later. Not MVP.
+- Open question deferred: how do we handle Agent actions that _no human authorized_ — e.g., a scheduled summarization or a cron job? Probably needs a `bot` or `service` attribution class later. Not MVP.
 
 ## Considered and rejected
 

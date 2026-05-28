@@ -20,38 +20,40 @@ import {
 
 const tools = [
   {
-    name: "create_doc",
-    inputSchema: createDocInput,
     handler: createDoc,
+    inputSchema: createDocInput,
+    name: "create_doc",
   },
   {
-    name: "get_doc",
-    inputSchema: getDocInput,
     handler: getDoc,
+    inputSchema: getDocInput,
+    name: "get_doc",
   },
   {
-    name: "edit_doc",
-    inputSchema: editDocInput,
     handler: editDoc,
+    inputSchema: editDocInput,
+    name: "edit_doc",
   },
   {
-    name: "post_comment",
-    inputSchema: postCommentInput,
     handler: postComment,
+    inputSchema: postCommentInput,
+    name: "post_comment",
   },
 ] as const;
 
 export const mcpRoutes = new Elysia({ prefix: "/mcp" })
   .get("/tools", () =>
     tools.map((t) => ({
-      name: t.name,
-      // TODO: emit JSON Schema once the MCP SDK is wired.
+      // Surfaces tool name only today; the MCP SDK wiring will emit
+      // full JSON Schema here once @modelcontextprotocol/sdk is in.
       input: t.name,
-    })),
+      name: t.name,
+    }))
   )
-  .get("/sse", () => {
-    // TODO: full JSON-RPC-over-SSE handshake via @modelcontextprotocol/sdk.
-    return new Response("mcp sse endpoint placeholder", {
-      headers: { "content-type": "text/event-stream" },
-    });
-  });
+  .get(
+    "/sse",
+    () =>
+      new Response("mcp sse endpoint placeholder", {
+        headers: { "content-type": "text/event-stream" },
+      })
+  );
